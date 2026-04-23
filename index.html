@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamAce Pro – AI Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@200;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #000000;
+  --s1: #09090b;
+  --s2: #18181b;
+  --s3: #27272a;
+  --border: rgba(255,255,255,0.1);
+  --border2: rgba(255,255,255,0.2);
+  --p: #ef233c;
+  --p2: #ff4d6d;
+  --p3: #ffb3c1;
+  --cyan: #8b5cf6;
+  --cyan2: #a78bfa;
+  --gold: #f59e0b;
+  --gold2: #fcd34d;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #ffffff;
+  --t2: #a1a1aa;
+  --t3: #71717a;
+  --glow-p: rgba(239, 35, 60, 0.3);
+  --glow-c: rgba(139, 92, 246, 0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BG */
+@keyframes border-spin { from { --gradient-angle: 0deg; } to { --gradient-angle: 360deg; } }
+@keyframes animStar { from { transform: translateY(0px); } to { transform: translateY(-2000px); } }
+@property --gradient-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.stars-1 { box-shadow: 234px 124px #fff, 654px 345px #fff, 876px 12px #fff, 1200px 800px #fff, 400px 1500px #fff, 1800px 200px #fff, 100px 1000px #fff, 900px 1900px #fff, 500px 600px #fff, 1400px 100px #fff, 300px 400px #fff, 1600px 1200px #fff; }
+.stars-2 { box-shadow: 123px 456px #fff, 789px 234px #fff, 456px 890px #fff, 1100px 300px #fff, 200px 1200px #fff, 1500px 500px #fff, 600px 1700px #fff, 1300px 900px #fff; }
+::selection { background: #ef233c; color: white; }
+
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+  animation: drift 20s ease-in-out infinite;
+}
+.orb1 { width:500px;height:500px;background:var(--p);top:-150px;left:-100px;animation-delay:0s; }
+.orb2 { width:400px;height:400px;background:var(--cyan);bottom:-100px;right:-80px;animation-delay:-7s; }
+.orb3 { width:300px;height:300px;background:var(--gold);top:50%;left:50%;animation-delay:-14s;opacity:0.08; }
+@keyframes drift {
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-40px) scale(1.05)}
+  66%{transform:translate(-20px,30px) scale(0.95)}
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(239,35,60,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239,35,60,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+/* NAVBAR */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(5,5,8,0.7);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--p2), var(--cyan2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--p), var(--cyan));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  -webkit-text-fill-color: white;
+}
+
+.nav-pills {
+  display: flex;
+  gap: 4px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+}
+.nav-pill {
+  padding: 7px 18px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--t2);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.nav-pill.active {
+  background: linear-gradient(135deg, var(--p), #991b1b);
+  color: white;
+  box-shadow: 0 4px 20px var(--glow-p);
+}
+.nav-pill:not(.active):hover { color: var(--text); background: var(--s3); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: var(--gold2);
+  font-weight: 600;
+}
+
+/* MAIN */
+main {
+  padding-top: 80px;
+  min-height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+.page { display: none; padding: 32px 32px 80px; max-width: 1100px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* HERO / HOME */
+.hero {
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239,35,60,0.1);
+  border: 1px solid rgba(239,35,60,0.25);
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  color: var(--p3);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+.hero h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--p2) 0%, var(--cyan2) 50%, var(--gold2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p {
+  font-size: 1.1rem;
+  color: var(--t2);
+  max-width: 560px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.hero-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 20px;
+}
+.feature-card:nth-child(1)::before { background: radial-gradient(circle at 50% 0%, rgba(239,35,60,0.15), transparent 60%); }
+.feature-card:nth-child(2)::before { background: radial-gradient(circle at 50% 0%, rgba(6,182,212,0.15), transparent 60%); }
+.feature-card:nth-child(3)::before { background: radial-gradient(circle at 50% 0%, rgba(245,158,11,0.15), transparent 60%); }
+.feature-card:nth-child(4)::before { background: radial-gradient(circle at 50% 0%, rgba(16,185,129,0.15), transparent 60%); }
+.feature-card:hover { transform: translateY(-4px); border-color: var(--border2); }
+.feature-card:hover::before { opacity: 1; }
+
+.fc-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+  display: block;
+}
+.fc-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.fc-desc { font-size: 0.85rem; color: var(--t2); line-height: 1.5; font-weight: 300; }
+.fc-arrow {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--p3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* STATS BAR */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.stat-chip {
+  flex: 1;
+  min-width: 120px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.stat-icon { font-size: 1.5rem; }
+.stat-val { font-family: 'Manrope', sans-serif; font-size: 1.5rem; font-weight: 700; }
+.stat-lbl { font-size: 0.75rem; color: var(--t3); margin-top: 1px; }
+
+/* SECTION TITLE */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.section-sub { font-size: 0.85rem; color: var(--t3); margin-top: 2px; }
+
+/* INPUTS */
+.input-group { margin-bottom: 16px; }
+.input-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  display: block;
+}
+.fancy-input {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s;
+}
+.fancy-input:focus {
+  border-color: var(--p);
+  box-shadow: 0 0 0 3px rgba(239,35,60,0.1);
+}
+.fancy-input::placeholder { color: var(--t3); }
+textarea.fancy-input { resize: vertical; min-height: 100px; font-family: 'Inter', sans-serif; line-height: 1.5; }
+
+.fancy-select {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  cursor: pointer;
+  flex: 1;
+  min-width: 130px;
+  transition: border-color 0.2s;
+}
+.fancy-select:focus { border-color: var(--p); }
+
+/* CONTROL PANEL */
+.control-panel {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.control-panel::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--p), var(--cyan), transparent);
+}
+
+.options-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+/* DIFF CHIPS */
+.diff-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.diff-chip {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--t2);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.diff-chip.active-easy { background: rgba(16,185,129,0.15); border-color: var(--green); color: var(--green); }
+.diff-chip.active-medium { background: rgba(245,158,11,0.15); border-color: var(--gold); color: var(--gold2); }
+.diff-chip.active-hard { background: rgba(239,68,68,0.15); border-color: var(--red); color: #fca5a5; }
+.diff-chip:hover:not(.active-easy):not(.active-medium):not(.active-hard) { border-color: var(--border2); color: var(--text); }
+
+/* BIG BUTTON */
+.btn-gen {
+  --gradient-angle: 0deg;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(#000000, #000000) padding-box, conic-gradient(from var(--gradient-angle), transparent 0%, #ef233c 5%, #ef233c 15%, #ef233c 30%, transparent 40%, transparent 100%) border-box;
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  color: white;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+  animation: border-spin 2.5s linear infinite;
+}
+.btn-gen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, white 0.5px, transparent 0);
+  background-size: 4px 4px;
+  opacity: 0.1;
+  z-index: 0;
+}
+.btn-gen:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(239, 35, 60, 0.4); }
+.btn-gen:active { transform: translateY(0); }
+.btn-gen:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; animation: none; border-color: var(--border); background: var(--s2); }
+
+.btn-sm {
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--s2);
+  color: var(--t2);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.83rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-sm:hover { border-color: var(--p); color: var(--p3); }
+.btn-sm.accent { background: rgba(239,35,60,0.12); border-color: rgba(239,35,60,0.3); color: var(--p3); }
+
+/* LOADER */
+.loader-wrap {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+}
+.loader-wrap.show { display: block; }
+.loader-ring {
+  width: 48px; height: 48px;
+  border: 3px solid var(--s3);
+  border-top-color: var(--p);
+  border-right-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text {
+  color: var(--t2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+/* ERROR */
+.err-box {
+  display: none;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: #fca5a5;
+  font-size: 0.88rem;
+  margin-top: 14px;
+}
+.err-box.show { display: block; }
+
+/* MCQ RESULTS */
+.results-wrap { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.quiz-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.score-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #6ee7b7;
+}
+
+/* PROGRESS BAR */
+.progress-track {
+  height: 4px;
+  background: var(--s3);
+  border-radius: 2px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--p), var(--cyan));
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.q-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 14px;
+  animation: cardIn 0.3s ease both;
+}
+@keyframes cardIn {
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.q-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--p3);
+  background: rgba(239,35,60,0.12);
+  border: 1px solid rgba(239,35,60,0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.q-status { font-size: 0.75rem; }
+
+.q-text {
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+  margin-bottom: 18px;
+}
+
+.opts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.opt-btn {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--p);
+  background: rgba(239,35,60,0.08);
+  color: var(--p3);
+}
+.opt-btn.correct {
+  border-color: var(--green)!important;
+  background: rgba(16,185,129,0.12)!important;
+  color: #6ee7b7!important;
+}
+.opt-btn.wrong {
+  border-color: var(--red)!important;
+  background: rgba(239,68,68,0.1)!important;
+  color: #fca5a5!important;
+}
+.opt-btn:disabled { cursor: default; }
+.opt-letter {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--s3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.exp-box {
+  display: none;
+  margin-top: 16px;
+  padding: 16px 18px;
+  background: rgba(239,35,60,0.06);
+  border: 1px solid rgba(239,35,60,0.18);
+  border-radius: 12px;
+  font-size: 0.87rem;
+  line-height: 1.65;
+  color: var(--t2);
+}
+.exp-box.show { display: block; }
+.exp-box strong { color: var(--p3); }
+
+/* FINAL SCORE CARD */
+.final-card {
+  display: none;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  margin-top: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.final-card.show { display: block; animation: fadeIn 0.4s ease; }
+.final-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(239,35,60,0.15), transparent 60%);
+  pointer-events: none;
+}
+.final-score-num {
+  font-family: 'Manrope', sans-serif;
+  font-size: 5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--p2), var(--cyan2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin: 16px 0;
+}
+.final-msg { font-size: 1.1rem; color: var(--t2); margin-bottom: 28px; }
+.final-stats { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.f-stat { text-align: center; }
+.f-stat-val { font-family: 'Manrope', sans-serif; font-size: 1.6rem; font-weight: 700; }
+.f-stat-lbl { font-size: 0.75rem; color: var(--t3); margin-top: 2px; }
+
+/* FLASHCARDS */
+.fc-arena { max-width: 680px; margin: 0 auto; }
+
+.card-3d { perspective: 1200px; cursor: pointer; margin-bottom: 16px; }
+.card-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 20px;
+  min-height: 240px;
+}
+.card-3d.flipped .card-inner { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  backface-visibility: hidden;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 240px;
+}
+.card-front {
+  background: var(--s1);
+  border: 1px solid var(--border);
+}
+.card-back {
+  background: linear-gradient(135deg, rgba(239,35,60,0.12), rgba(6,182,212,0.08));
+  border: 1px solid rgba(239,35,60,0.25);
+  transform: rotateY(180deg);
+}
+.card-label-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--t3);
+  margin-bottom: 14px;
+}
+.card-text { font-size: 1.05rem; line-height: 1.7; font-weight: 400; }
+
+.card-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+.card-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--t3);
+}
+.flip-hint-text {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--t3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 12px;
+}
+
+.card-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.card-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--s3);
+  transition: all 0.2s;
+}
+.card-dot.active { background: var(--p); width: 18px; border-radius: 3px; }
+.card-dot.done { background: var(--green); }
+
+/* CHAT */
+.chat-layout { display: flex; gap: 20px; height: calc(100vh - 160px); }
+
+.chat-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+.sidebar-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.suggestion-chip {
+  padding: 10px 14px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+.suggestion-chip:hover {
+  border-color: var(--p);
+  color: var(--p3);
+  background: rgba(239,35,60,0.08);
+}
+
+.chat-main { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.chat-window {
+  flex: 1;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.chat-window::-webkit-scrollbar { width: 4px; }
+.chat-window::-webkit-scrollbar-track { background: transparent; }
+.chat-window::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+
+.msg-wrap {
+  margin-bottom: 18px;
+  animation: msgIn 0.2s ease;
+}
+@keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+.msg-sender {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.msg-wrap.user .msg-sender { color: var(--gold2); text-align: right; }
+.msg-wrap.bot .msg-sender { color: var(--cyan2); }
+
+.msg-bubble {
+  max-width: 80%;
+  padding: 13px 17px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.msg-wrap.user .msg-bubble {
+  margin-left: auto;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-bottom-right-radius: 4px;
+}
+.msg-wrap.bot .msg-bubble {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--t3);
+  margin: 0 2px;
+  animation: blink 1.2s ease infinite;
+}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+
+.chat-input-bar {
+  display: flex;
+  gap: 10px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px;
+}
+.chat-input-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  padding: 6px 8px;
+}
+.chat-input-bar input::placeholder { color: var(--t3); }
+
+.send-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--p), #991b1b);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.send-btn:hover { box-shadow: 0 4px 20px var(--glow-p); transform: translateY(-1px); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* NOTES PAGE */
+.notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.note-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.note-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.note-card .nc-title { font-family: 'Manrope', sans-serif; font-size: 1rem; margin-bottom: 8px; }
+.note-card .nc-preview { font-size: 0.83rem; color: var(--t2); line-height: 1.5; }
+.note-card .nc-tag { 
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-top: 12px;
+  background: rgba(239,35,60,0.12);
+  border: 1px solid rgba(239,35,60,0.2);
+  color: var(--p3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* SETTINGS / API KEY CONFIG */
+.config-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.config-overlay.show { display: flex; }
+.config-modal {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+  animation: modalIn 0.3s ease;
+}
+@keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 32px; height: 32px;
+  color: var(--t2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+.modal-close:hover { color: var(--text); border-color: var(--border2); }
+.modal-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.modal-sub { font-size: 0.85rem; color: var(--t2); margin-bottom: 28px; line-height: 1.5; }
+
+.key-input-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+.key-input {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 50px 14px 18px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  outline: none;
+  transition: all 0.2s;
+}
+.key-input:focus { border-color: var(--p); box-shadow: 0 0 0 3px rgba(239,35,60,0.1); }
+.key-input::placeholder { color: var(--t3); font-family: 'Inter', sans-serif; }
+.key-toggle {
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--t3);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+.key-toggle:hover { color: var(--text); }
+
+.key-hint { font-size: 0.78rem; color: var(--t3); margin-bottom: 24px; }
+.key-hint a { color: var(--p3); text-decoration: none; }
+.key-hint a:hover { text-decoration: underline; }
+
+.key-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  margin-bottom: 20px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: #6ee7b7;
+  display: none;
+}
+.key-status.show { display: flex; }
+
+.btn-save {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--p), #991b1b);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-save:hover { box-shadow: 0 8px 30px var(--glow-p); transform: translateY(-1px); }
+
+/* KEY INDICATOR in nav */
+.key-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--s2);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--t3);
+}
+.key-indicator.connected { border-color: rgba(16,185,129,0.3); color: var(--green); background: rgba(16,185,129,0.08); }
+.key-indicator:hover { border-color: var(--p); color: var(--p3); }
+.key-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav { padding: 0 16px; }
+  .nav-pills { display: none; }
+  .page { padding: 24px 16px 60px; }
+  .chat-layout { flex-direction: column; height: auto; }
+  .chat-sidebar { width: 100%; max-height: 150px; }
+  .chat-window { height: 380px; }
+  .opts-grid { grid-template-columns: 1fr; }
+  .notes-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2rem; }
+  .mobile-nav { display: flex!important; }
+}
+
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(13,13,20,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 10px 20px;
+  z-index: 100;
+  justify-content: space-around;
+}
+.mob-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--t3);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px 12px;
+}
+.mob-btn.active { color: var(--p3); }
+.mob-icon { font-size: 1.2rem; }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas" id="plasma-container">
+  <!-- Plasma WebGL will be injected here -->
+</div>
+<div class="grid-overlay">
+  <div class="stars-1" style="position:absolute;top:0;left:0;width:1px;height:1px;background:transparent;animation: animStar 50s linear infinite;"></div>
+  <div class="stars-2" style="position:absolute;top:0;left:0;width:2px;height:2px;background:transparent;animation: animStar 80s linear infinite;"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-icon">⚡</div>
+    ExamAce Pro
+  </div>
+
+  <div class="nav-pills">
+    <button class="nav-pill active" onclick="goPage('home',this)">🏠 Home</button>
+    <button class="nav-pill" onclick="goPage('mcq',this)">🧠 MCQ Quiz</button>
+    <button class="nav-pill" onclick="goPage('flash',this)">🃏 Flashcards</button>
+    <button class="nav-pill" onclick="goPage('chat',this)">💬 AI Tutor</button>
+    <button class="nav-pill" onclick="goPage('notes',this)">📝 Smart Notes</button>
+    <button class="nav-pill" onclick="goPage('planner',this)">📅 Study Planner</button>
+    <button class="nav-pill" onclick="goPage('essay',this)">✍️ Essay Grader</button>
+  </div>
+
+  <div class="nav-right">
+    <div class="streak-badge">🔥 <span id="streak-val">0</span> day streak</div>
+    <div class="key-indicator" id="key-indicator" onclick="openConfig()">
+      <div class="key-dot"></div>
+      <span id="key-label">Setup API</span>
+    </div>
+    <button class="btn-sm" onclick="replayAurora()" title="Replay Aurora Animation" style="width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%">↺</button>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <button class="mob-btn active" onclick="goPage('home',this)"><span class="mob-icon">🏠</span>Home</button>
+  <button class="mob-btn" onclick="goPage('mcq',this)"><span class="mob-icon">🧠</span>Quiz</button>
+  <button class="mob-btn" onclick="goPage('flash',this)"><span class="mob-icon">🃏</span>Cards</button>
+  <button class="mob-btn" onclick="goPage('chat',this)"><span class="mob-icon">💬</span>Tutor</button>
+  <button class="mob-btn" onclick="goPage('notes',this)"><span class="mob-icon">📝</span>Notes</button>
+  <button class="mob-btn" onclick="goPage('planner',this)"><span class="mob-icon">📅</span>Plan</button>
+  <button class="mob-btn" onclick="goPage('essay',this)"><span class="mob-icon">✍️</span>Grade</button>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="config-overlay" id="config-overlay" onclick="if(event.target===this)closeConfig()">
+  <div class="config-modal">
+    <button class="modal-close" onclick="closeConfig()">✕</button>
+    <div class="modal-title">🔑 API Configuration</div>
+    <div class="modal-sub">Your key is stored only in your browser's local memory — never sent anywhere except directly to Groq's servers.</div>
+
+    <div class="key-input-wrap">
+      <input type="password" class="key-input" id="api-key-input" placeholder="Paste your Groq API key here..." />
+      <button class="key-toggle" onclick="toggleApiVis()">👁</button>
+    </div>
+    <div class="key-hint">
+      Get your free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a> → API Keys → Create Key (free, no card needed)
+    </div>
+
+    <div class="key-status show" id="key-status">
+      ✅ API key saved in session
+    </div>
+
+    <button class="btn-save" onclick="saveKey()">Save & Connect</button>
+  </div>
+</div>
+
+<!-- PAGES -->
+<main>
+
+<!-- HOME -->
+<div id="home-page" class="page active">
+  <!-- HERO CARD (Aurora Integrated) -->
+  <div style="margin-bottom: 60px;">
+    <div style="position: relative; overflow: hidden; border-radius: 24px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 40px 100px rgba(0,0,0,0.4); aspect-ratio: 16/9; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; padding: 40px;">
+      
+      <!-- Local Aurora Background -->
+      <div id="hero-aurora" style="position: absolute; inset: 0; z-index: 0; pointer-events: none;"></div>
+      
+      <!-- Gradient Overlay for blending -->
+      <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 50%, rgba(0,0,0,0.5) 100%); z-index: 1; pointer-events: none;"></div>
+
+      <!-- Content -->
+      <div style="position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="text-align: left;">
+            <div class="hero-tag" style="margin-bottom: 12px; background: rgba(255,255,255,0.05);">✦ AI-POWERED STUDY PLATFORM</div>
+            <h1 style="font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 8px; line-height: 1.1;">Study Smarter,<br><span class="grad">Score Higher</span></h1>
+            <p style="margin: 0; font-size: 1rem; opacity: 0.6; max-width: 400px; line-height: 1.6;">A WebGL-based fluid simulation mimicking the northern lights, powering your personalized AI tutor.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+             <span style="padding: 4px 12px; border-radius: 99px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); font-size: 0.7rem; font-weight: 600; backdrop-filter: blur(4px);">WEBGL</span>
+             <span style="padding: 4px 12px; border-radius: 99px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); font-size: 0.7rem; font-weight: 600; backdrop-filter: blur(4px);">OGL</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+          <button class="btn-sm accent" onclick="replayAurora()" style="display: flex; align-items: center; gap: 8px; border-radius: 12px; padding: 12px 24px; font-weight: 600;">
+            <span style="font-size: 1.1rem;">↺</span> Replay Effect
+          </button>
+          
+          <div style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; opacity: 0.4; letter-spacing: 1px;">
+            AMPLITUDE: 1.0 <br>
+            SPEED: 0.5 <br>
+            TIME: <span id="aurora-time">0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decorative outside glows -->
+      <div style="position: absolute; -top: 50px; -left: 50px; width: 200px; height: 200px; background: rgba(58, 41, 255, 0.15); border-radius: 50%; filter: blur(60px); pointer-events: none; mix-blend-mode: screen;"></div>
+      <div style="position: absolute; -bottom: 50px; -right: 50px; width: 200px; height: 200px; background: rgba(255, 50, 50, 0.15); border-radius: 50%; filter: blur(60px); pointer-events: none; mix-blend-mode: screen;"></div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-chip">
+      <div class="stat-icon">🧠</div>
+      <div>
+        <div class="stat-val" id="stat-qs">0</div>
+        <div class="stat-lbl">Questions Answered</div>
+      </div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-val" id="stat-acc">—</div>
+        <div class="stat-lbl">Accuracy Rate</div>
+      </div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-icon">🃏</div>
+      <div>
+        <div class="stat-val" id="stat-cards">0</div>
+        <div class="stat-lbl">Cards Reviewed</div>
+      </div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-icon">💬</div>
+      <div>
+        <div class="stat-val" id="stat-chats">0</div>
+        <div class="stat-lbl">Tutor Sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-cards">
+    <div class="feature-card" onclick="goPage('mcq', document.querySelector('.nav-pill:nth-child(2)'))">
+      <span class="fc-icon">🧠</span>
+      <div class="fc-title">MCQ Quiz Generator</div>
+      <div class="fc-desc">Generate unlimited practice questions on any topic with instant feedback and explanations.</div>
+      <div class="fc-arrow">Start Quiz →</div>
+    </div>
+    <div class="feature-card" onclick="goPage('flash', document.querySelector('.nav-pill:nth-child(3)'))">
+      <span class="fc-icon">🃏</span>
+      <div class="fc-title">Smart Flashcards</div>
+      <div class="fc-desc">Interactive flip cards with spaced repetition to help you memorize concepts faster.</div>
+      <div class="fc-arrow">Create Cards →</div>
+    </div>
+    <div class="feature-card" onclick="goPage('chat', document.querySelector('.nav-pill:nth-child(4)'))">
+      <span class="fc-icon">🤖</span>
+      <div class="fc-title">AI Tutor Chat</div>
+      <div class="fc-desc">Ask anything, get quizzed, or request explanations — your personal AI professor, 24/7.</div>
+      <div class="fc-arrow">Chat Now →</div>
+    </div>
+    <div class="feature-card" onclick="goPage('notes', document.querySelector('.nav-pill:nth-child(5)'))">
+      <span class="fc-icon">📝</span>
+      <div class="fc-title">Smart Notes</div>
+      <div class="fc-desc">Generate concise revision notes and key points on any topic in seconds.</div>
+      <div class="fc-arrow">Make Notes →</div>
+    </div>
+    <div class="feature-card" onclick="goPage('planner', document.querySelector('.nav-pill:nth-child(6)'))">
+      <span class="fc-icon">📅</span>
+      <div class="fc-title">Study Planner</div>
+      <div class="fc-desc">Create personalized study schedules based on your syllabus and time left.</div>
+      <div class="fc-arrow">Plan Now →</div>
+    </div>
+    <div class="feature-card" onclick="goPage('essay', document.querySelector('.nav-pill:nth-child(7)'))">
+      <span class="fc-icon">✍️</span>
+      <div class="fc-title">Essay Grader</div>
+      <div class="fc-desc">Get instant feedback, scores, and improvements for your essays and answers.</div>
+      <div class="fc-arrow">Grade Essay →</div>
+    </div>
+  </div>
+</div>
+
+<!-- MCQ PAGE -->
+<div id="mcq-page" class="page">
+  <div class="section-head">
+    <div>
+      <div class="section-title">🧠 MCQ Quiz Generator</div>
+      <div class="section-sub">AI-generated practice questions with instant feedback</div>
+    </div>
+    <button class="btn-sm" onclick="resetMCQ()">↺ Reset</button>
+  </div>
+
+  <div class="control-panel">
+    <div class="input-group">
+      <label class="input-label">Topic / Subject</label>
+      <input class="fancy-input" id="mcq-topic" placeholder="e.g. CPU Architecture, Newton's Laws, Photosynthesis, French Revolution..."/>
+    </div>
+    <div class="options-row">
+      <div style="flex:1;min-width:130px">
+        <label class="input-label">Questions</label>
+        <select class="fancy-select" id="mcq-count" style="width:100%">
+          <option value="5">5 Questions</option>
+          <option value="10" selected>10 Questions</option>
+          <option value="15">15 Questions</option>
+          <option value="20">20 Questions</option>
+        </select>
+      </div>
+      <div style="flex:2;min-width:200px">
+        <label class="input-label">Difficulty</label>
+        <div class="diff-chips">
+          <button class="diff-chip active-easy" data-diff="easy" onclick="setDiff(this,'easy')">🟢 Easy</button>
+          <button class="diff-chip" data-diff="medium" onclick="setDiff(this,'medium')">🟡 Medium</button>
+          <button class="diff-chip" data-diff="hard" onclick="setDiff(this,'hard')">🔴 Hard</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-gen" id="mcq-btn" onclick="generateMCQ()">⚡ Generate Quiz</button>
+    <div class="err-box" id="mcq-err"></div>
+  </div>
+
+  <div class="loader-wrap" id="mcq-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Crafting your questions...</div>
+  </div>
+
+  <div id="mcq-out"></div>
+</div>
+
+<!-- FLASHCARD PAGE -->
+<div id="flash-page" class="page">
+  <div class="section-head">
+    <div>
+      <div class="section-title">🃏 Flashcard Generator</div>
+      <div class="section-sub">Click cards to flip • Navigate with arrows</div>
+    </div>
+    <button class="btn-sm" onclick="resetFlash()">↺ Reset</button>
+  </div>
+
+  <div class="control-panel">
+    <div class="input-group">
+      <label class="input-label">Topic</label>
+      <input class="fancy-input" id="flash-topic" placeholder="e.g. Operating Systems, Organic Chemistry, Data Structures..."/>
+    </div>
+    <div class="options-row">
+      <div style="flex:1;min-width:130px">
+        <label class="input-label">Number of Cards</label>
+        <select class="fancy-select" id="flash-count" style="width:100%">
+          <option value="5">5 Cards</option>
+          <option value="10" selected>10 Cards</option>
+          <option value="15">15 Cards</option>
+          <option value="20">20 Cards</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-gen" id="flash-btn" onclick="generateFlash()">🃏 Generate Flashcards</button>
+    <div class="err-box" id="flash-err"></div>
+  </div>
+
+  <div class="loader-wrap" id="flash-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Creating your flashcards...</div>
+  </div>
+
+  <div id="flash-out"></div>
+</div>
+
+<!-- CHAT PAGE -->
+<div id="chat-page" class="page">
+  <div class="section-head" style="margin-bottom:16px">
+    <div>
+      <div class="section-title">💬 AI Tutor</div>
+      <div class="section-sub">Ask anything or say "quiz me on [topic]"</div>
+    </div>
+    <button class="btn-sm" onclick="clearChat()">🗑 Clear Chat</button>
+  </div>
+
+  <div class="chat-layout">
+    <div class="chat-sidebar">
+      <div class="sidebar-title">Quick Prompts</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">Explain recursion with an example</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">Quiz me on Operating System concepts</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">What is the difference between TCP and UDP?</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">Explain process scheduling algorithms</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">Give me 5 important questions for my exam</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">Explain with a real-world analogy</div>
+      <div class="suggestion-chip" onclick="insertPrompt(this.textContent)">Summarize the key points of my last topic</div>
+    </div>
+
+    <div class="chat-main">
+      <div class="chat-window" id="chat-win">
+        <div class="msg-wrap bot">
+          <div class="msg-sender">ExamAce Tutor</div>
+          <div class="msg-bubble">👋 Hey! I'm your AI exam tutor powered by Llama 3. I can explain concepts, quiz you, solve doubts, or help you revise any topic.
+
+Try saying: <strong>"Quiz me on data structures"</strong> or <strong>"Explain deadlock in OS"</strong></div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input type="text" id="chat-inp" placeholder="Ask a question or say 'quiz me on...'..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"/>
+        <button class="send-btn" id="send-btn" onclick="sendChat()">Send ➤</button>
+      </div>
+      <div class="err-box" id="chat-err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES PAGE -->
+<div id="notes-page" class="page">
+  <div class="section-head">
+    <div>
+      <div class="section-title">📝 Smart Notes Generator</div>
+      <div class="section-sub">AI-generated revision notes and key points</div>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <div class="input-group">
+      <label class="input-label">Topic</label>
+      <input class="fancy-input" id="notes-topic" placeholder="e.g. Computer Networks, Thermodynamics, DBMS Transactions..."/>
+    </div>
+    <div class="options-row">
+      <div style="flex:1;min-width:130px">
+        <label class="input-label">Format</label>
+        <select class="fancy-select" id="notes-type" style="width:100%">
+          <option value="summary">📋 Concise Summary</option>
+          <option value="keypoints">🔑 Key Points</option>
+          <option value="detailed">📖 Detailed Notes</option>
+          <option value="mindmap">🗺 Mind Map (Text)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-gen" id="notes-btn" onclick="generateNotes()">📝 Generate Notes</button>
+    <div class="err-box" id="notes-err"></div>
+  </div>
+
+  <div class="loader-wrap" id="notes-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Generating your notes...</div>
+  </div>
+
+  <div id="notes-out"></div>
+  <div id="saved-notes"></div>
+</div>
+
+<!-- PLANNER PAGE -->
+<div id="planner-page" class="page">
+  <div class="section-head">
+    <div>
+      <div class="section-title">📅 Study Planner</div>
+      <div class="section-sub">AI-generated structured study schedule</div>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <div class="input-group">
+      <label class="input-label">Syllabus / Topics</label>
+      <input class="fancy-input" id="planner-topic" placeholder="e.g. Calculus (Integration, Differentiation), Physics (Kinematics)..."/>
+    </div>
+    <div class="options-row">
+      <div style="flex:1;min-width:130px">
+        <label class="input-label">Days Left</label>
+        <input type="number" class="fancy-input" id="planner-days" value="7" min="1" max="60"/>
+      </div>
+      <div style="flex:1;min-width:130px">
+        <label class="input-label">Daily Study Hours</label>
+        <input type="number" class="fancy-input" id="planner-hours" value="4" min="1" max="16"/>
+      </div>
+    </div>
+    <button class="btn-gen" id="planner-btn" onclick="generatePlanner()">📅 Generate Plan</button>
+    <div class="err-box" id="planner-err"></div>
+  </div>
+
+  <div class="loader-wrap" id="planner-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Structuring your schedule...</div>
+  </div>
+
+  <div id="planner-out"></div>
+</div>
+
+<!-- ESSAY PAGE -->
+<div id="essay-page" class="page">
+  <div class="section-head">
+    <div>
+      <div class="section-title">✍️ Essay Grader</div>
+      <div class="section-sub">Get instant AI feedback and scoring on your answers</div>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <div class="input-group">
+      <label class="input-label">Question / Topic</label>
+      <input class="fancy-input" id="essay-topic" placeholder="e.g. Discuss the causes of World War 1..."/>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Your Essay / Answer</label>
+      <textarea class="fancy-input" id="essay-text" placeholder="Paste your essay here..."></textarea>
+    </div>
+    <button class="btn-gen" id="essay-btn" onclick="generateEssayFeedback()">✍️ Evaluate Essay</button>
+    <div class="err-box" id="essay-err"></div>
+  </div>
+
+  <div class="loader-wrap" id="essay-loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Analyzing your essay...</div>
+  </div>
+
+  <div id="essay-out"></div>
+</div>
+
+</main>
+
+<script>
+// ========= STATE =========
+let GROQ_KEY = '';
+let mcqDiff = 'easy';
+let mcqData = [], mcqScore = 0, mcqAnswered = 0;
+let flashData = [], flashIdx = 0;
+let chatHistory = [];
+let savedNotes = [];
+let stats = { qs: 0, correct: 0, cards: 0, chats: 0, streak: 0 };
+
+// ========= INIT =========
+window.onload = () => {
+  const saved = sessionStorage.getItem('groq_key');
+  if (saved) { GROQ_KEY = saved; updateKeyUI(true); }
+  loadStats();
+  updateStreak();
+};
+
+function loadStats() {
+  const s = JSON.parse(localStorage.getItem('examace_stats') || '{}');
+  stats = { qs: s.qs||0, correct: s.correct||0, cards: s.cards||0, chats: s.chats||0, streak: s.streak||0 };
+  renderStats();
+}
+
+function saveStats() {
+  localStorage.setItem('examace_stats', JSON.stringify(stats));
+  renderStats();
+}
+
+function renderStats() {
+  document.getElementById('stat-qs').textContent = stats.qs;
+  document.getElementById('stat-cards').textContent = stats.cards;
+  document.getElementById('stat-chats').textContent = stats.chats;
+  const acc = stats.qs > 0 ? Math.round((stats.correct/stats.qs)*100) + '%' : '—';
+  document.getElementById('stat-acc').textContent = acc;
+  document.getElementById('streak-val').textContent = stats.streak;
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  const last = localStorage.getItem('last_study');
+  if (last !== today) {
+    stats.streak = last === new Date(Date.now()-86400000).toDateString() ? stats.streak+1 : 1;
+    localStorage.setItem('last_study', today);
+    saveStats();
+  }
+}
+
+// ========= CONFIG =========
+function openConfig() { document.getElementById('config-overlay').classList.add('show'); }
+function closeConfig() { document.getElementById('config-overlay').classList.remove('show'); }
+
+function toggleApiVis() {
+  const inp = document.getElementById('api-key-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function saveKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key.startsWith('gsk_')) {
+    alert('Invalid key format. Groq keys start with gsk_'); return;
+  }
+  GROQ_KEY = key;
+  sessionStorage.setItem('groq_key', key);
+  updateKeyUI(true);
+  document.getElementById('key-status').classList.add('show');
+  setTimeout(closeConfig, 800);
+}
+
+function updateKeyUI(connected) {
+  const ind = document.getElementById('key-indicator');
+  const lbl = document.getElementById('key-label');
+  if (connected) { ind.classList.add('connected'); lbl.textContent = 'API Connected'; }
+  else { ind.classList.remove('connected'); lbl.textContent = 'Setup API'; }
+}
+
+// ========= NAVIGATION =========
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-pill, .mob-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(name + '-page').classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ========= GROQ API =========
+async function callGroq(messages, system, maxTok=2500) {
+  if (!GROQ_KEY) { openConfig(); throw new Error('Please configure your API key first!'); }
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role:'system', content:system }, ...messages],
+      temperature: 0.7, max_tokens: maxTok
+    })
+  });
+  if (!r.ok) {
+    const e = await r.json();
+    throw new Error(e.error?.message || 'API error. Check your key.');
+  }
+  return (await r.json()).choices[0].message.content;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+// ========= MCQ =========
+function setDiff(el, val) {
+  document.querySelectorAll('.diff-chip').forEach(c => {
+    c.classList.remove('active-easy','active-medium','active-hard');
+  });
+  el.classList.add('active-' + val);
+  mcqDiff = val;
+}
+
+function resetMCQ() {
+  document.getElementById('mcq-out').innerHTML = '';
+  document.getElementById('mcq-topic').value = '';
+  mcqData = []; mcqScore = 0; mcqAnswered = 0;
+}
+
+async function generateMCQ() {
+  const topic = document.getElementById('mcq-topic').value.trim();
+  const count = document.getElementById('mcq-count').value;
+  if (!topic) return showErr('mcq-err', 'Please enter a topic!');
+
+  document.getElementById('mcq-btn').disabled = true;
+  document.getElementById('mcq-loader').classList.add('show');
+  document.getElementById('mcq-out').innerHTML = '';
+  mcqScore = 0; mcqAnswered = 0;
+
+  const sys = `You are an expert exam question creator. Generate exactly ${count} MCQs on "${topic}" at ${mcqDiff} difficulty.
+Return ONLY a valid JSON array. No markdown, no backticks, no extra text:
+[{"q":"Question?","options":["A","B","C","D"],"answer":0,"explanation":"Why correct."}]
+"answer" = 0-based index of correct option. Make all options plausible and distinct.`;
+
+  try {
+    const raw = await callGroq([{role:'user',content:`Generate ${count} ${mcqDiff} MCQs on: ${topic}`}], sys, 3000);
+    const s = raw.indexOf('['), e = raw.lastIndexOf(']');
+    mcqData = JSON.parse(raw.substring(s, e+1));
+    renderMCQ(topic, count);
+  } catch(err) { showErr('mcq-err', err.message); }
+  finally {
+    document.getElementById('mcq-btn').disabled = false;
+    document.getElementById('mcq-loader').classList.remove('show');
+  }
+}
+
+function renderMCQ(topic, count) {
+  const out = document.getElementById('mcq-out');
+  out.innerHTML = `
+    <div class="results-wrap">
+      <div class="quiz-header">
+        <div class="quiz-title">📝 ${topic} — ${count} Questions</div>
+        <div class="score-pill" id="live-score">Score: 0 / 0</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+      <div id="q-list"></div>
+      <div class="final-card" id="final-card"></div>
+    </div>`;
+
+  const letters = ['A','B','C','D'];
+  mcqData.forEach((q, i) => {
+    const opts = q.options.map((o, oi) =>
+      `<button class="opt-btn" onclick="answerQ(${i},${oi})" id="o${i}_${oi}">
+        <span class="opt-letter">${letters[oi]}</span>${o}
+      </button>`).join('');
+
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.style.animationDelay = `${i * 0.04}s`;
+    card.innerHTML = `
+      <div class="q-meta">
+        <div class="q-num">Q${i+1}</div>
+        <div class="q-status" id="qs${i}"></div>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="opts-grid">${opts}</div>
+      <div class="exp-box" id="exp${i}"><strong>💡 Explanation:</strong> ${q.explanation}</div>`;
+    document.getElementById('q-list').appendChild(card);
+  });
+}
+
+function answerQ(qi, chosen) {
+  const q = mcqData[qi];
+  document.querySelectorAll(`[id^="o${qi}_"]`).forEach(b => b.disabled = true);
+
+  const correct = chosen === q.answer;
+  document.getElementById(`o${qi}_${chosen}`).classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) document.getElementById(`o${qi}_${q.answer}`).classList.add('correct');
+  document.getElementById(`exp${qi}`).classList.add('show');
+  document.getElementById(`qs${qi}`).textContent = correct ? '✅' : '❌';
+
+  if (correct) mcqScore++;
+  mcqAnswered++;
+  stats.qs++; if (correct) stats.correct++;
+  saveStats();
+
+  const pct = Math.round((mcqAnswered / mcqData.length) * 100);
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('live-score').textContent = `Score: ${mcqScore} / ${mcqAnswered}`;
+
+  if (mcqAnswered === mcqData.length) showFinalScore();
+}
+
+function showFinalScore() {
+  const pct = Math.round((mcqScore / mcqData.length) * 100);
+  const msgs = ['Keep practicing! 💪', 'Good effort! 👍', 'Nice work! 🎯', 'Great job! 🌟', 'Outstanding! 🏆'];
+  const msg = msgs[Math.floor(pct/25)];
+  const fc = document.getElementById('final-card');
+  fc.innerHTML = `
+    <div style="font-size:2rem">🎉</div>
+    <div class="final-score-num">${pct}%</div>
+    <div class="final-msg">${msg} You scored ${mcqScore}/${mcqData.length}</div>
+    <div class="final-stats">
+      <div class="f-stat"><div class="f-stat-val" style="color:var(--green)">${mcqScore}</div><div class="f-stat-lbl">Correct</div></div>
+      <div class="f-stat"><div class="f-stat-val" style="color:var(--red)">${mcqData.length-mcqScore}</div><div class="f-stat-lbl">Wrong</div></div>
+      <div class="f-stat"><div class="f-stat-val" style="color:var(--p2)">${pct}%</div><div class="f-stat-lbl">Accuracy</div></div>
+    </div>
+    <button class="btn-gen" style="max-width:280px;margin:0 auto" onclick="resetMCQ()">🔄 Try Another Quiz</button>`;
+  fc.classList.add('show');
+  fc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ========= FLASHCARDS =========
+function resetFlash() {
+  document.getElementById('flash-out').innerHTML = '';
+  document.getElementById('flash-topic').value = '';
+  flashData = []; flashIdx = 0;
+}
+
+async function generateFlash() {
+  const topic = document.getElementById('flash-topic').value.trim();
+  const count = document.getElementById('flash-count').value;
+  if (!topic) return showErr('flash-err', 'Please enter a topic!');
+
+  document.getElementById('flash-btn').disabled = true;
+  document.getElementById('flash-loader').classList.add('show');
+  document.getElementById('flash-out').innerHTML = '';
+
+  const sys = `Create exactly ${count} study flashcards on "${topic}".
+Return ONLY a valid JSON array, no markdown:
+[{"front":"Term or concept","back":"Clear explanation in 2-3 sentences with key details."}]`;
+
+  try {
+    const raw = await callGroq([{role:'user',content:`${count} flashcards on: ${topic}`}], sys, 2500);
+    const s = raw.indexOf('['), e = raw.lastIndexOf(']');
+    flashData = JSON.parse(raw.substring(s, e+1));
+    flashIdx = 0;
+    stats.cards += flashData.length;
+    saveStats();
+    renderFlash();
+  } catch(err) { showErr('flash-err', err.message); }
+  finally {
+    document.getElementById('flash-btn').disabled = false;
+    document.getElementById('flash-loader').classList.remove('show');
+  }
+}
+
+function renderFlash() {
+  const card = flashData[flashIdx];
+  const dots = flashData.map((_, i) =>
+    `<div class="card-dot ${i < flashIdx ? 'done' : i === flashIdx ? 'active' : ''}"></div>`).join('');
+
+  document.getElementById('flash-out').innerHTML = `
+    <div class="fc-arena">
+      <div class="card-dots">${dots}</div>
+      <div class="card-3d" id="fc-main" onclick="this.classList.toggle('flipped')">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <div class="card-label-tag">💡 Concept</div>
+            <div class="card-text">${card.front}</div>
+          </div>
+          <div class="card-face card-back">
+            <div class="card-label-tag">✅ Explanation</div>
+            <div class="card-text">${card.back}</div>
+          </div>
+        </div>
+      </div>
+      <div class="flip-hint-text">👆 Tap card to flip</div>
+      <div class="card-controls">
+        <button class="btn-sm" onclick="navFlash(-1)" ${flashIdx===0?'disabled':''}>← Prev</button>
+        <span class="card-counter">${flashIdx+1} / ${flashData.length}</span>
+        <button class="btn-sm accent" onclick="navFlash(1)" ${flashIdx===flashData.length-1?'disabled':''}>Next →</button>
+      </div>
+    </div>`;
+}
+
+function navFlash(dir) {
+  flashIdx = Math.max(0, Math.min(flashData.length-1, flashIdx+dir));
+  renderFlash();
+}
+
+// ========= CHAT =========
+function insertPrompt(text) {
+  document.getElementById('chat-inp').value = text;
+  document.getElementById('chat-inp').focus();
+}
+
+function clearChat() {
+  chatHistory = [];
+  document.getElementById('chat-win').innerHTML = `
+    <div class="msg-wrap bot">
+      <div class="msg-sender">ExamAce Tutor</div>
+      <div class="msg-bubble">Chat cleared! Ask me anything 😊</div>
+    </div>`;
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chat-inp');
+  const msg = inp.value.trim();
+  if (!msg) return;
+
+  addMsg('user', msg);
+  inp.value = '';
+  document.getElementById('send-btn').disabled = true;
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Typing indicator
+  const tid = addMsg('bot', '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>', true);
+
+  const sys = `You are ExamAce, a brilliant, friendly AI exam tutor. Help students understand complex topics simply.
+If asked to quiz, ask one question at a time and give feedback. Use examples and analogies. Keep answers clear and well-structured.
+Format responses nicely with line breaks for readability.`;
+
+  try {
+    const reply = await callGroq(chatHistory, sys, 1200);
+    chatHistory.push({ role:'assistant', content: reply });
+    document.getElementById(tid)?.remove();
+    addMsg('bot', reply);
+    stats.chats++;
+    saveStats();
+  } catch(e) {
+    document.getElementById(tid)?.remove();
+    showErr('chat-err', e.message);
+  } finally {
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
+function addMsg(role, text, isTyping=false) {
+  const win = document.getElementById('chat-win');
+  const id = 'msg_' + Date.now();
+  const div = document.createElement('div');
+  div.className = `msg-wrap ${role}`;
+  div.id = id;
+  div.innerHTML = `
+    <div class="msg-sender">${role==='user'?'You':'ExamAce Tutor'}</div>
+    <div class="msg-bubble">${text}</div>`;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+  return id;
+}
+
+// ========= NOTES =========
+async function generateNotes() {
+  const topic = document.getElementById('notes-topic').value.trim();
+  const type = document.getElementById('notes-type').value;
+  if (!topic) return showErr('notes-err', 'Please enter a topic!');
+
+  document.getElementById('notes-btn').disabled = true;
+  document.getElementById('notes-loader').classList.add('show');
+  document.getElementById('notes-out').innerHTML = '';
+
+  const formats = {
+    summary: 'Write a concise summary (200-300 words) covering the most important aspects.',
+    keypoints: 'List 10-15 key points as bullet points. Each point should be clear and memorable.',
+    detailed: 'Write comprehensive study notes (400-500 words) covering all important concepts, definitions, and examples.',
+    mindmap: 'Create a text-based mind map with main topic, sub-topics (marked with →), and details (marked with •).'
+  };
+
+  const sys = `You are an expert at creating study materials. ${formats[type]} Be clear, accurate, and student-friendly. Use emojis sparingly for key points.`;
+
+  try {
+    const raw = await callGroq([{role:'user',content:`Create ${type} notes on: ${topic}`}], sys, 1500);
+    renderNotes(topic, type, raw);
+    savedNotes.unshift({ topic, type, content: raw, date: new Date().toLocaleDateString() });
+    if (savedNotes.length > 5) savedNotes.pop();
+    renderSavedNotes();
+  } catch(err) { showErr('notes-err', err.message); }
+  finally {
+    document.getElementById('notes-btn').disabled = false;
+    document.getElementById('notes-loader').classList.remove('show');
+  }
+}
+
+function renderNotes(topic, type, content) {
+  const out = document.getElementById('notes-out');
+  const formatted = content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+  out.innerHTML = `
+    <div class="results-wrap">
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--p),var(--cyan),transparent)"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-family:'Manrope',sans-serif;font-size:1.1rem;font-weight:600">${topic}</div>
+            <div style="font-size:0.78rem;color:var(--t3);margin-top:2px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">${type} notes</div>
+          </div>
+          <button class="btn-sm" onclick="copyNotes()">📋 Copy</button>
+        </div>
+        <div id="notes-content" style="font-size:0.92rem;line-height:1.8;color:var(--t2)">${formatted}</div>
+      </div>
+    </div>`;
+}
+
+function copyNotes() {
+  const text = document.getElementById('notes-content')?.innerText || '';
+  navigator.clipboard.writeText(text).then(() => alert('Notes copied to clipboard!'));
+}
+
+function renderSavedNotes() {
+  if (!savedNotes.length) return;
+  const el = document.getElementById('saved-notes');
+  el.innerHTML = `
+    <div style="margin-top:28px">
+      <div class="section-title" style="font-size:1rem;margin-bottom:14px">📚 Recent Notes</div>
+      <div class="notes-grid">
+        ${savedNotes.map((n,i) => `
+          <div class="note-card" onclick="showOldNote(${i})">
+            <div class="nc-title">${n.topic}</div>
+            <div class="nc-preview">${n.content.substring(0,100)}...</div>
+            <span class="nc-tag">${n.type} • ${n.date}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function showOldNote(i) {
+  const n = savedNotes[i];
+  renderNotes(n.topic, n.type, n.content);
+  document.getElementById('notes-out').scrollIntoView({ behavior:'smooth' });
+}
+
+// ========= PLANNER =========
+async function generatePlanner() {
+  const topic = document.getElementById('planner-topic').value.trim();
+  const days = document.getElementById('planner-days').value;
+  const hours = document.getElementById('planner-hours').value;
+  
+  if (!topic) return showErr('planner-err', 'Please enter syllabus/topics!');
+  if (days < 1 || hours < 1) return showErr('planner-err', 'Please enter valid days and hours.');
+
+  document.getElementById('planner-btn').disabled = true;
+  document.getElementById('planner-loader').classList.add('show');
+  document.getElementById('planner-out').innerHTML = '';
+
+  const sys = `You are an expert study planner. Create a day-by-day study schedule for ${days} days, studying ${hours} hours per day, covering: ${topic}.
+Format the output beautifully using markdown-like structure, but HTML-ready:
+Use bolding for days, bullet points for tasks, and keep it extremely well organized. Be specific about what to study each day. End with a short motivational tip.`;
+
+  try {
+    const raw = await callGroq([{role:'user',content:`Create a ${days}-day study plan for ${topic} (${hours} hrs/day)`}], sys, 2000);
+    renderPlanner(topic, days, hours, raw);
+  } catch(err) { showErr('planner-err', err.message); }
+  finally {
+    document.getElementById('planner-btn').disabled = false;
+    document.getElementById('planner-loader').classList.remove('show');
+  }
+}
+
+function renderPlanner(topic, days, hours, content) {
+  const out = document.getElementById('planner-out');
+  const formatted = content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--cyan2)">$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+  out.innerHTML = `
+    <div class="results-wrap">
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold),var(--p),transparent)"></div>
+        <div style="margin-bottom:20px">
+          <div style="font-family:'Manrope',sans-serif;font-size:1.1rem;font-weight:600">📅 ${days}-Day Study Plan</div>
+          <div style="font-size:0.78rem;color:var(--t3);margin-top:4px;font-family:'JetBrains Mono',monospace;">${hours} hrs/day • ${topic}</div>
+        </div>
+        <div style="font-size:0.92rem;line-height:1.8;color:var(--t2)">${formatted}</div>
+      </div>
+    </div>`;
+}
+
+// ========= ESSAY GRADER =========
+async function generateEssayFeedback() {
+  const topic = document.getElementById('essay-topic').value.trim();
+  const text = document.getElementById('essay-text').value.trim();
+  
+  if (!topic) return showErr('essay-err', 'Please enter the essay question/topic!');
+  if (!text || text.length < 20) return showErr('essay-err', 'Please enter a valid essay (at least 20 characters).');
+
+  document.getElementById('essay-btn').disabled = true;
+  document.getElementById('essay-loader').classList.add('show');
+  document.getElementById('essay-out').innerHTML = '';
+
+  const sys = `You are a strict but helpful essay grader. Evaluate the provided essay based on the topic.
+Format your response as follows:
+**Score:** [X]/10
+**Feedback:** [1-2 paragraphs of constructive feedback]
+**Strengths:** [Bullet points]
+**Weaknesses:** [Bullet points]
+**Improved Version:** [A rewritten, improved version of the essay]
+Do not use markdown outside of the requested bold headers. Make it clear and easy to read.`;
+
+  try {
+    const raw = await callGroq([{role:'user',content:`Topic: ${topic}\n\nEssay: ${text}`}], sys, 2500);
+    renderEssayFeedback(topic, raw);
+  } catch(err) { showErr('essay-err', err.message); }
+  finally {
+    document.getElementById('essay-btn').disabled = false;
+    document.getElementById('essay-loader').classList.remove('show');
+  }
+}
+
+function renderEssayFeedback(topic, content) {
+  const out = document.getElementById('essay-out');
+  const formatted = content
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--cyan2);font-size:1.05rem">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+  out.innerHTML = `
+    <div class="results-wrap">
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),transparent)"></div>
+        <div style="margin-bottom:20px">
+          <div style="font-family:'Manrope',sans-serif;font-size:1.1rem;font-weight:600">✍️ Essay Evaluation</div>
+          <div style="font-size:0.78rem;color:var(--t3);margin-top:4px;font-family:'JetBrains Mono',monospace;">Topic: ${topic}</div>
+        </div>
+        <div style="font-size:0.92rem;line-height:1.7;color:var(--t2)">${formatted}</div>
+      </div>
+    </div>`;
+}
+</script>
+
+<!-- Aurora Effect Script -->
+<script type="module">
+  import { Renderer, Program, Mesh, Triangle, Color } from 'https://cdn.jsdelivr.net/npm/ogl@1.0.11/dist/ogl.mjs';
+
+  const VERT = `#version 300 es
+in vec2 position;
+void main() {
+  gl_Position = vec4(position, 0.0, 1.0);
+}
+`;
+
+  const FRAG = `#version 300 es
+precision highp float;
+
+uniform float uTime;
+uniform float uAmplitude;
+uniform vec3 uColorStops[3];
+uniform vec2 uResolution;
+uniform float uBlend;
+uniform float uAlpha;
+
+out vec4 fragColor;
+
+vec3 permute(vec3 x) {
+  return mod(((x * 34.0) + 1.0) * x, 289.0);
+}
+
+float snoise(vec2 v){
+  const vec4 C = vec4(
+      0.211324865405187, 0.366025403784439,
+      -0.577350269189626, 0.024390243902439
+  );
+  vec2 i  = floor(v + dot(v, C.yy));
+  vec2 x0 = v - i + dot(i, C.xx);
+  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute(
+      permute(i.y + vec3(0.0, i1.y, 1.0))
+    + i.x + vec3(0.0, i1.x, 1.0)
+  );
+  vec3 m = max(
+      0.5 - vec3(
+          dot(x0, x0),
+          dot(x12.xy, x12.xy),
+          dot(x12.zw, x12.zw)
+      ), 
+      0.0
+  );
+  m = m * m;
+  m = m * m;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m = 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+struct ColorStop {
+  vec3 color;
+  float position;
+};
+
+#define COLOR_RAMP(colors, factor, finalColor) {              \
+  int index = 0;                                            \
+  for (int i = 0; i < 2; i++) {                               \
+     ColorStop currentColor = colors[i];                    \
+     bool isInBetween = currentColor.position <= factor;    \
+     index = int(mix(float(index), float(i), float(isInBetween))); \
+  }                                                         \
+  ColorStop currentColor = colors[index];                   \
+  ColorStop nextColor = colors[index + 1];                  \
+  float range = nextColor.position - currentColor.position; \
+  float lerpFactor = (factor - currentColor.position) / range; \
+  finalColor = mix(currentColor.color, nextColor.color, lerpFactor); \
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uResolution;
+  
+  ColorStop colors[3];
+  colors[0] = ColorStop(uColorStops[0], 0.0);
+  colors[1] = ColorStop(uColorStops[1], 0.5);
+  colors[2] = ColorStop(uColorStops[2], 1.0);
+  
+  vec3 rampColor;
+  COLOR_RAMP(colors, uv.x, rampColor);
+  
+  float height = snoise(vec2(uv.x * 2.0 + uTime * 0.1, uTime * 0.25)) * 0.5 * uAmplitude;
+  height = exp(height);
+  height = (uv.y * 2.0 - height + 0.2);
+  float intensity = 0.6 * height;
+  
+  float midPoint = 0.20;
+  float auroraAlpha = smoothstep(midPoint - uBlend * 0.5, midPoint + uBlend * 0.5, intensity);
+  
+  vec3 auroraColor = intensity * rampColor;
+  
+  fragColor = vec4(auroraColor * auroraAlpha, auroraAlpha * uAlpha);
+}
+`;
+
+  let mainAurora, heroAurora;
+
+  function initAurora(containerSelector, options = {}) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    const {
+      colorStops = ['#3A29FF', '#FF94B4', '#FF3232'],
+      amplitude = 1.0,
+      blend = 0.5,
+      speed = 0.5,
+      alpha = 1.0
+    } = options;
+
+    const renderer = new Renderer({
+      alpha: true,
+      premultipliedAlpha: true,
+      antialias: true
+    });
+    
+    const gl = renderer.gl;
+    gl.clearColor(0, 0, 0, 0);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    
+    gl.canvas.style.display = 'block';
+    gl.canvas.style.width = '100%';
+    gl.canvas.style.height = '100%';
+    gl.canvas.style.backgroundColor = 'transparent';
+    container.innerHTML = '';
+    container.appendChild(gl.canvas);
+
+    const geometry = new Triangle(gl);
+    if (geometry.attributes.uv) delete geometry.attributes.uv;
+
+    const colorStopsArray = colorStops.map(hex => {
+      const c = new Color(hex);
+      return [c.r, c.g, c.b];
+    });
+
+    const program = new Program(gl, {
+      vertex: VERT,
+      fragment: FRAG,
+      uniforms: {
+        uTime: { value: 0 },
+        uAmplitude: { value: amplitude },
+        uColorStops: { value: colorStopsArray },
+        uResolution: { value: [container.offsetWidth, container.offsetHeight] },
+        uBlend: { value: blend },
+        uAlpha: { value: alpha }
+      }
+    });
+
+    const mesh = new Mesh(gl, { geometry, program });
+
+    const setSize = () => {
+      const rect = container.getBoundingClientRect();
+      const width = Math.max(1, Math.floor(rect.width));
+      const height = Math.max(1, Math.floor(rect.height));
+      renderer.setSize(width, height);
+      program.uniforms.uResolution.value = [width, height];
+    };
+
+    const ro = new ResizeObserver(setSize);
+    ro.observe(container);
+    setSize();
+
+    let mouse = { x: 0.5, y: 0.5 };
+    if (containerSelector === '#hero-aurora') {
+      container.parentElement.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouse.x = (e.clientX - rect.left) / rect.width;
+        mouse.y = (e.clientY - rect.top) / rect.height;
+      });
+    }
+
+    raf = requestAnimationFrame(loop);
+    const t0 = performance.now();
+    const loop = (t) => {
+      raf = requestAnimationFrame(loop);
+      let timeValue = (t - t0) * 0.001;
+      
+      program.uniforms.uTime.value = timeValue * speed * 0.1;
+      
+      if (containerSelector === '#hero-aurora') {
+        const ampTarget = 1.0 + (mouse.y - 0.5) * 0.5;
+        program.uniforms.uAmplitude.value += (ampTarget - program.uniforms.uAmplitude.value) * 0.05;
+        
+        const timeEl = document.getElementById('aurora-time');
+        if (timeEl) timeEl.innerText = (timeValue * speed).toFixed(2);
+      }
+
+      renderer.render({ scene: mesh });
+    };
+
+    raf = requestAnimationFrame(loop);
+
+    return {
+      reset: () => { t0 = performance.now(); },
+      stop: () => { cancelAnimationFrame(raf); ro.disconnect(); }
+    };
+  }
+
+  window.replayAurora = () => {
+    if (mainAurora) mainAurora.reset();
+    if (heroAurora) heroAurora.reset();
+  };
+
+  // Initialize Global Background
+  mainAurora = initAurora('#plasma-container', {
+    colorStops: ['#ef233c', '#8b5cf6', '#fcd34d'],
+    blend: 0.8,
+    amplitude: 1.1,
+    speed: 0.3,
+    alpha: 0.4
+  });
+
+  // Initialize Hero Card Background
+  heroAurora = initAurora('#hero-aurora', {
+    colorStops: ['#3A29FF', '#FF94B4', '#FF3232'],
+    blend: 0.5,
+    amplitude: 1.0,
+    speed: 0.5,
+    alpha: 1.0
+  });
+</script>
+</body>
+</html>
